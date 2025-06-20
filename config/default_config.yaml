@@ -28,8 +28,7 @@ tag_settings:
     - user_defined_text_1
     - user_defined_text_2
     - custom_note
-  
-  # Diese Tags können verarbeitet werden
+    # Diese Tags können verarbeitet werden
   processable_tags:
     - artist
     - albumartist
@@ -44,22 +43,56 @@ tag_settings:
     - disctotal
     - youtube_url
     - youtube_views
+    - youtube_likes
+    - youtube_channel    - spotify_id
+    - spotify_url
+    - spotify_popularity
+    - spotify_artist_followers
+    - spotify_artist_monthly_listeners
+    - spotify_preview_url
+    - lastfm_url
+    - lastfm_playcount
+    - lastfm_listeners
     - popularity_score
     - musicbrainz_artist_id
     - musicbrainz_track_id
-    - spotify_id
-  
   # Diese Tags werden automatisch aktualisiert (ohne Nachfrage)
   auto_update_tags:
     - youtube_views
+    - youtube_likes
+    - spotify_popularity
+    - spotify_artist_followers
+    - spotify_artist_monthly_listeners
+    - lastfm_playcount
+    - lastfm_listeners
     - popularity_score
-  
-  # Benutzerdefinierte Tag-Mappings
+    # Benutzerdefinierte Tag-Mappings
   custom_tags:
+    # YouTube
     youtube_url: "WXXX:YOUTUBE_URL"
     youtube_views: "TXXX:YOUTUBE_VIEWS"
-    popularity_score: "TXXX:POPULARITY_SCORE"
+    youtube_likes: "TXXX:YOUTUBE_LIKES"
+    youtube_channel: "TXXX:YOUTUBE_CHANNEL"
+      # Spotify
     spotify_id: "TXXX:SPOTIFY_ID"
+    spotify_url: "WXXX:SPOTIFY_URL"
+    spotify_popularity: "TXXX:SPOTIFY_POPULARITY"
+    spotify_artist_followers: "TXXX:SPOTIFY_ARTIST_FOLLOWERS"
+    spotify_artist_monthly_listeners: "TXXX:SPOTIFY_MONTHLY_LISTENERS"
+    spotify_preview_url: "WXXX:SPOTIFY_PREVIEW_URL"
+    
+    # Last.fm
+    lastfm_url: "WXXX:LASTFM_URL"  
+    lastfm_playcount: "TXXX:LASTFM_PLAYCOUNT"
+    lastfm_listeners: "TXXX:LASTFM_LISTENERS"
+    
+    # Allgemeine Metadaten
+    popularity_score: "TXXX:POPULARITY_SCORE"
+    
+    # Weitere Plattformen (vorbereitet)
+    # soundcloud_url: "WXXX:SOUNDCLOUD_URL"
+    # bandcamp_url: "WXXX:BANDCAMP_URL"
+    # apple_music_url: "WXXX:APPLE_MUSIC_URL"
 
 # Matching-Einstellungen
 matching_settings:

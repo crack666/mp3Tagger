@@ -42,6 +42,8 @@ class MetadataResult:
     duration: Optional[int] = None
     musicbrainz_id: Optional[str] = None
     spotify_id: Optional[str] = None
+    spotify_artist_followers: Optional[int] = None
+    spotify_preview_url: Optional[str] = None
     lastfm_url: Optional[str] = None
     popularity: Optional[int] = None
     explicit: Optional[bool] = None
@@ -307,8 +309,7 @@ class MetadataResolver:
                         result = self._parse_spotify_track(track, artist, title)
                         if result and result.confidence >= 0.6:
                             results.append(result)
-                
-                except Exception as e:
+                  except Exception as e:
                     logger.warning(f"Spotify Suche fehlgeschlagen für '{query}': {e}")
                     continue
         
@@ -348,6 +349,24 @@ class MetadataResolver:
                 if clean_g and clean_g not in sp_genres:
                     sp_genres.append(clean_g)
             
+            # Zusätzliche Künstler-Informationen abrufen
+            spotify_artist_followers = None
+            spotify_monthly_listeners = None
+            spotify_preview_url = track.get('preview_url', '')
+            
+            try:
+                # Hauptkünstler-Informationen abrufen
+                if track.get('artists') and len(track['artists']) > 0:
+                    main_artist_id = track['artists'][0]['id']
+                    artist_info = self.spotify.artist(main_artist_id)
+                    
+                    spotify_artist_followers = artist_info.get('followers', {}).get('total', 0)
+                    # Hinweis: Monthly Listeners sind nicht über die öffentliche API verfügbar
+                    # Wir können sie aber später über andere Endpunkte oder Schätzungen ergänzen
+                    
+            except Exception as e:
+                logger.debug(f"Fehler beim Abrufen der Künstler-Details: {e}")
+            
             # Confidence-Score berechnen
             confidence = match_artist_title(
                 query_artist, query_title, sp_artist, sp_title
@@ -364,7 +383,9 @@ class MetadataResolver:
                 duration=sp_duration,
                 spotify_id=sp_id,
                 popularity=sp_popularity,
-                explicit=sp_explicit
+                explicit=sp_explicit,
+                spotify_artist_followers=spotify_artist_followers,
+                spotify_preview_url=spotify_preview_url
             )
         
         except Exception as e:
