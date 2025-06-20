@@ -680,13 +680,42 @@ def enrich_single(ctx, file_path: str, fetch_youtube: bool, update_tags: bool):
                     click.echo(f"     Channel: {video.channel}")
                     click.echo(f"     Views: {view_count}")
                     click.echo(f"     URL: {video.url}")
-        
-        # Tags aktualisieren (optional)
+          # Tags aktualisieren (optional)
         if update_tags and metadata_results:
             min_confidence = config.get('matching_settings.min_confidence', 80) / 100
             merged_metadata = metadata_resolver.merge_metadata_results(
                 metadata_results, min_confidence
             )
+            
+            # YouTube-Daten zu Metadaten hinzufügen (falls verfügbar)
+            if fetch_youtube and youtube_handler.youtube_handler.is_api_available():
+                video_results = asyncio.run(
+                    youtube_handler.find_all_videos(
+                        mp3_info.parsed_artist,
+                        mp3_info.parsed_title
+                    )
+                )
+                
+                if video_results and 'youtube' in video_results:
+                    best_video = youtube_handler.get_best_video(video_results)
+                    if best_video:
+                        # YouTube-Metadaten hinzufügen
+                        if not merged_metadata:
+                            merged_metadata = {}
+                        
+                        merged_metadata.update({
+                            'youtube_url': best_video.url,
+                            'youtube_video_id': best_video.video_id,
+                            'youtube_views': best_video.view_count,
+                            'youtube_likes': best_video.like_count or 0,
+                            'youtube_channel': best_video.channel,
+                        })
+                        
+                        click.echo(f"\n🎥 YouTube-Daten hinzugefügt:")
+                        view_count_str = youtube_handler.youtube_handler.format_view_count(best_video.view_count)
+                        click.echo(f"   Video: {best_video.title}")
+                        click.echo(f"   Views: {view_count_str}")
+                        click.echo(f"   URL: {best_video.url}")
             
             if merged_metadata:
                 success = tag_manager.write_tags(
@@ -699,6 +728,8 @@ def enrich_single(ctx, file_path: str, fetch_youtube: bool, update_tags: bool):
                     click.echo("\n✅ Tags erfolgreich aktualisiert!")
                 else:
                     click.echo("\n❌ Fehler beim Aktualisieren der Tags!")
+            else:
+                click.echo("\n⚠️ Keine ausreichend vertrauenswürdigen Metadaten zum Aktualisieren gefunden!")
         
     except Exception as e:
         logger.error(f"Fehler bei der Datei-Anreicherung: {e}")

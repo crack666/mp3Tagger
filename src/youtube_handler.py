@@ -81,14 +81,33 @@ class YouTubeHandler:
         if self.youtube:
             youtube_results = await self._search_youtube(artist, title, album)
             all_results.extend(youtube_results)
-        
-        # Weitere Plattformen könnten hier hinzugefügt werden
+          # Weitere Plattformen könnten hier hinzugefügt werden
         # - Vimeo API
         # - SoundCloud API
         # - etc.
         
-        # Nach Confidence und View Count sortieren
-        all_results.sort(key=lambda x: (x.confidence, x.view_count), reverse=True)
+        # Intelligente Sortierung: Offizielle Videos und View-Count priorisieren
+        def sort_key(video):
+            # Basis-Score aus Confidence
+            score = video.confidence
+            
+            # Bonus für offizielle Videos
+            if video.is_official:
+                score += 0.3
+            
+            # Bonus für Musik-Videos
+            if video.is_music_video:
+                score += 0.2
+            
+            # View-Count als sekundärer Faktor (logarithmisch skaliert)
+            import math
+            if video.view_count > 0:
+                view_bonus = math.log10(video.view_count) / 100  # Normalisiert auf 0-0.1
+                score += view_bonus
+            
+            return (score, video.view_count)
+        
+        all_results.sort(key=sort_key, reverse=True)
         
         return all_results
     
@@ -117,8 +136,7 @@ class YouTubeHandler:
             for fmt in search_formats:
                 query = fmt.format(artist=artist, title=title)
                 search_queries.append(query)
-            
-            # Album-spezifische Suchen hinzufügen
+              # Album-spezifische Suchen hinzufügen
             if album:
                 search_queries.insert(0, f"{artist} {title} {album}")
                 search_queries.insert(1, f"{artist} - {title} {album} official")
@@ -133,7 +151,7 @@ class YouTubeHandler:
                         part='id,snippet',
                         type='video',
                         maxResults=max_results_per_query,
-                        order='relevance',
+                        order='viewCount',  # Nach View Count sortieren!
                         videoCategoryId='10',  # Musik-Kategorie
                         regionCode='DE'  # Deutsche Region
                     ).execute()

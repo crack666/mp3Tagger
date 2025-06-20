@@ -301,15 +301,15 @@ class MetadataResolver:
                         type='track', 
                         limit=10,
                         market='DE'  # Deutsche Markt-Daten
-                    )
-                    
+                    )                    
                     tracks = search_results.get('tracks', {}).get('items', [])
                     
                     for track in tracks:
                         result = self._parse_spotify_track(track, artist, title)
                         if result and result.confidence >= 0.6:
                             results.append(result)
-                  except Exception as e:
+                
+                except Exception as e:
                     logger.warning(f"Spotify Suche fehlgeschlagen für '{query}': {e}")
                     continue
         
