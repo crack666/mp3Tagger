@@ -1,0 +1,166 @@
+# MP3 Tagger - Standard Konfiguration
+# Kopiere diese Datei zu user_config.yaml und passe die Einstellungen an
+
+# API-Konfiguration
+api_keys:
+  # MusicBrainz benötigt nur einen User-Agent String
+  musicbrainz_user_agent: "mp3Tagger/1.0 (https://github.com/yourname/mp3Tagger)"
+  
+  # Last.fm API Key (kostenlos unter https://www.last.fm/api/account/create)
+  lastfm_api_key: ""
+  lastfm_shared_secret: ""
+  
+  # Spotify API (kostenlos unter https://developer.spotify.com/)
+  spotify_client_id: ""
+  spotify_client_secret: ""
+  
+  # YouTube Data API v3 (Google Cloud Console)
+  youtube_api_key: ""
+  
+  # Discogs API (optional)
+  discogs_user_token: ""
+
+# Tag-Verwaltung
+tag_settings:
+  # Diese Tags werden niemals überschrieben
+  protected_tags:
+    - comment
+    - user_defined_text_1
+    - user_defined_text_2
+    - custom_note
+  
+  # Diese Tags können verarbeitet werden
+  processable_tags:
+    - artist
+    - albumartist
+    - title
+    - album
+    - date
+    - year
+    - genre
+    - track
+    - tracktotal
+    - disc
+    - disctotal
+    - youtube_url
+    - youtube_views
+    - popularity_score
+    - musicbrainz_artist_id
+    - musicbrainz_track_id
+    - spotify_id
+  
+  # Diese Tags werden automatisch aktualisiert (ohne Nachfrage)
+  auto_update_tags:
+    - youtube_views
+    - popularity_score
+  
+  # Benutzerdefinierte Tag-Mappings
+  custom_tags:
+    youtube_url: "WXXX:YOUTUBE_URL"
+    youtube_views: "TXXX:YOUTUBE_VIEWS"
+    popularity_score: "TXXX:POPULARITY_SCORE"
+    spotify_id: "TXXX:SPOTIFY_ID"
+
+# Matching-Einstellungen
+matching_settings:
+  # Minimum Confidence Score (0-100)
+  min_confidence: 80
+  
+  # Fuzzy-Matching Threshold (0.0-1.0)
+  fuzzy_threshold: 0.8
+  
+  # Maximale Ergebnisse pro API-Anfrage
+  max_results_per_query: 10
+  
+  # Timeout für API-Anfragen (Sekunden)
+  api_timeout: 30
+  
+  # Retry-Versuche bei fehlgeschlagenen API-Anfragen
+  max_retries: 3
+
+# YouTube-spezifische Einstellungen
+youtube_settings:
+  # Suchformat für YouTube-Videos
+  search_formats:
+    - "{artist} - {title} official"
+    - "{artist} {title} official music video"
+    - "{artist} {title}"
+    - "{title} {artist}"
+  
+  # Minimum View Count für Video-Auswahl
+  min_view_count: 1000
+  
+  # Bevorzuge offizielle Kanäle
+  prefer_official_channels: true
+  
+  # Blacklist für Kanäle/Uploader
+  channel_blacklist:
+    - "lyrics"
+    - "karaoke"
+    - "instrumental"
+    - "cover"
+
+# Genre-Einstellungen
+genre_settings:
+  # Maximale Anzahl Genres pro Song
+  max_genres: 3
+  
+  # Genre-Priorität (höhere Werte = höhere Priorität)
+  genre_priority:
+    Rock: 10
+    Pop: 9
+    Hip-Hop: 8
+    Electronic: 7
+    Jazz: 6
+    Classical: 5
+  
+  # Genre-Mappings zwischen verschiedenen APIs
+  genre_mappings:
+    "Hip Hop": "Hip-Hop"
+    "R&B": "R&B/Soul"
+    "Dance": "Electronic"
+    "Techno": "Electronic"
+
+# Logging-Einstellungen
+logging:
+  # Log-Level: DEBUG, INFO, WARNING, ERROR, CRITICAL
+  level: "INFO"
+  
+  # Log-Datei-Pfad (relativ zum Projekt-Root)
+  file: "logs/mp3_tagger.log"
+  
+  # Maximale Log-Datei-Größe (MB)
+  max_file_size: 10
+  
+  # Anzahl Log-Dateien als Backup
+  backup_count: 5
+  
+  # Konsolen-Output aktivieren
+  console_output: true
+
+# Performance-Einstellungen
+performance:
+  # Anzahl paralleler API-Anfragen
+  max_concurrent_requests: 5
+  
+  # Cache-Einstellungen
+  enable_cache: true
+  cache_duration_days: 30
+  cache_directory: "cache"
+  
+  # Batch-Größe für Datei-Verarbeitung
+  batch_size: 50
+
+# Backup-Einstellungen
+backup:
+  # Automatische Backups vor Tag-Änderungen
+  auto_backup: true
+  
+  # Backup-Verzeichnis
+  directory: "backups"
+  
+  # Maximales Alter der Backups (Tage)
+  max_age_days: 90
+  
+  # Komprimierung der Backups
+  compress: true

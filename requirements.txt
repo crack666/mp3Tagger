@@ -1,0 +1,21 @@
+# Core Dependencies
+mutagen>=1.47.0          # ID3-Tag-Manipulation
+requests>=2.31.0         # HTTP-Anfragen
+pyyaml>=6.0.1           # Konfigurationsdateien
+click>=8.1.7            # CLI-Interface
+tqdm>=4.66.1            # Progress-Bars
+fuzzywuzzy>=0.18.0      # String-Matching
+python-Levenshtein>=0.21.1  # String-Distanz-Berechnung
+
+# Optional Dependencies
+spotipy>=2.23.0         # Spotify API-Client
+google-api-python-client>=2.102.0  # YouTube API
+discogs-client>=2.3.0   # Discogs API
+musicbrainzngs>=0.7.1   # MusicBrainz API-Client
+
+# Development Dependencies
+pytest>=7.4.0
+pytest-cov>=4.1.0
+black>=23.7.0
+flake8>=6.0.0
+mypy>=1.5.0
