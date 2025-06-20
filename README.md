@@ -1,353 +1,251 @@
-# MP3 Tagger - Intelligentes Metadaten-Anreicherungstool
+# 🎵 MP3 Tagger
 
-Ein Python-basiertes Tool zur automatischen Anreicherung von MP3-Dateien mit Metadaten unter Verwendung verschiedener APIs und intelligenter Matching-Algorithmen.
+[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## Überblick
+> **Intelligente Metadaten-Anreicherung für MP3-Dateien mit mehreren APIs**
 
-Dieses Tool scannt MP3-Dateien in einem angegebenen Ordner und reichert sie mit fehlenden Metadaten an, ohne bereits vorhandene Tags zu überschreiben. Es bietet eine intelligente Konfliktauflösung und konfigurierbare Tag-Verwaltung.
+MP3 Tagger ist ein Python-Tool, das automatisch fehlende Metadaten für Ihre MP3-Sammlung ergänzt. Es kombiniert mehrere Musik-APIs und findet die besten YouTube-Videos basierend auf Klickzahlen.
 
-## Hauptfunktionen
+## ✨ Features
 
-### Core Features
-- **Automatische Metadaten-Erkennung**: Analyse von Dateinamen zur Extraktion von Künstler und Titel
-- **API-Integration**: Nutzung mehrerer Musikdatenbanken für umfassende Metadaten
-- **YouTube-Integration**: Automatische Verknüpfung mit YouTube-Videos und Abruf von Klickzahlen
-- **Intelligenter Tag-Schutz**: Vorhandene Tags werden nicht überschrieben
-- **Konflikt-Management**: Interaktive Auflösung bei abweichenden Daten
-- **Konfigurierbare Tag-Verwaltung**: Flexible Einstellungen für zu verarbeitende Tags
+- 🔍 **Intelligente Dateiname-Erkennung** - Automatisches Parsing von Künstler und Titel
+- 🌐 **Multi-API-Integration** - MusicBrainz, Spotify, Last.fm, YouTube
+- 🎥 **YouTube-Integration** - Automatische Verlinkung mit populärsten Videos
+- 🛡️ **Tag-Schutz** - Bestehende Tags werden geschützt  
+- 📊 **View-Count-Sortierung** - Findet die richtige Version mit den meisten Klicks
+- ⚙️ **Konfigurierbarer Workflow** - Anpassbare Tag-Behandlung
+- 💾 **Automatische Backups** - Sichere Tag-Updates
 
-### Metadaten-Kategorien
-- **Basis-Tags**: Künstler, Titel, Album, Jahr, Genre
-- **Erweiterte Tags**: YouTube-URL, Klickzahlen, Popularitätsscore
-- **Technische Tags**: Bitrate, Dauer, Sample-Rate
-- **Benutzer-Tags**: Benutzerdefinierte Felder (über Konfiguration)
+## 🚀 Quick Start
 
-## Technische Architektur
+### Installation
 
-### 1. Datei-Scanner Modul (`file_scanner.py`)
-```
-Funktionen:
-- Rekursive MP3-Datei-Erkennung
-- Metadaten-Extraktion aus vorhandenen Tags
-- Dateiname-Parsing für Künstler/Titel-Erkennung
-- Dateisystem-Monitoring für neue Dateien
-```
+```bash
+# Repository klonen
+git clone https://github.com/yourusername/mp3Tagger.git
+cd mp3Tagger
 
-### 2. Metadaten-Resolver (`metadata_resolver.py`)
-```
-API-Integration:
-- MusicBrainz API: Primäre Musikdatenbank
-- Last.fm API: Genre-Informationen und zusätzliche Metadaten
-- Spotify Web API: Alternative Datenquelle
-- Discogs API: Detaillierte Veröffentlichungsinformationen
+# Dependencies installieren
+pip install -r requirements.txt
 
-Matching-Algorithmus:
-- Fuzzy String Matching für Künstler/Titel
-- Phonetische Ähnlichkeit (Soundex/Metaphone)
-- Levenshtein-Distanz für Titel-Matching
-- Confidence-Score-Berechnung (0-100%)
+# Oder mit dem Installer
+./install.ps1  # Windows PowerShell
+# oder
+./install.bat  # Windows Batch
 ```
 
-### 3. YouTube-Integration (`youtube_handler.py`)
-```
-Features:
-- YouTube Data API v3 Integration
-- Automatische Video-Suche basierend auf Künstler + Titel
-- Klickzahlen-Abruf und -Speicherung
-- Video-URL-Extraktion
-- Popularitätstrends-Tracking
+### API-Keys konfigurieren
+
+```bash
+# Setup-Assistent ausführen
+python main.py setup-apis
+
+# API-Keys in config/user_config.yaml eintragen
 ```
 
-### 4. Genre-Klassifikation (`genre_classifier.py`)
-```
-Funktionen:
-- Multi-Genre-Unterstützung
-- Genre-Hierarchie-Mapping
-- Machine Learning basierte Genre-Vorhersage
-- Genre-Confidence-Scoring
-- Benutzer-Genre-Überschreibungen
+### Erste Schritte
+
+```bash
+# MP3-Verzeichnis scannen
+python main.py scan ./my-music
+
+# Einzelne Datei anreichern
+python main.py enrich-single "song.mp3" --fetch-youtube --update-tags
+
+# Ganzes Verzeichnis bearbeiten
+python main.py enrich ./my-music --update-tags --fetch-youtube
 ```
 
-### 5. Tag-Manager (`tag_manager.py`)
-```
-Verantwortlichkeiten:
-- ID3v2.4 Tag-Manipulation
-- Tag-Konflikt-Erkennung
-- Backup-Erstellung vor Änderungen
-- Batch-Tag-Updates
-- Tag-Validierung und -Bereinigung
+## 📖 Kommandos
+
+### Überblick
+
+| Kommando | Beschreibung |
+|----------|-------------|
+| `scan` | Scannt Verzeichnis nach MP3s und zeigt Informationen |
+| `enrich` | Reichert MP3s mit Metadaten an |
+| `enrich-single` | Bearbeitet eine einzelne Datei |
+| `info` | Zeigt Details zu einer MP3-Datei |
+| `test-apis` | Testet API-Verbindungen |
+| `setup-apis` | Hilfe bei der API-Konfiguration |
+| `config-info` | Zeigt aktuelle Konfiguration |
+
+### Detaillierte Kommandos
+
+#### `scan` - Verzeichnis scannen
+```bash
+python main.py scan <verzeichnis> [optionen]
 ```
 
-### 6. Konflikt-Resolver (`conflict_resolver.py`)
-```
-Features:
-- Interaktive Konfliktauflösung
-- Automatische Konfliktregeln
-- Confidence-basierte Entscheidungen
-- Benutzer-Präferenz-Speicherung
-- Massenaktionen für ähnliche Konflikte
+| Option | Beschreibung |
+|--------|-------------|
+| `--recursive, -r` | Unterverzeichnisse einschließen (Standard: true) |
+| `--verbose, -v` | Detaillierte Ausgabe |
+
+**Beispiele:**
+```bash
+# Scan mit Unterverzeichnissen
+python main.py scan ./music --recursive
+
+# Nur aktuelles Verzeichnis 
+python main.py scan ./music --no-recursive
 ```
 
-### 7. Konfigurationssystem (`config_manager.py`)
+#### `enrich` - Metadaten anreichern
+```bash
+python main.py enrich <verzeichnis> [optionen]
+```
+
+| Option | Beschreibung |
+|--------|-------------|
+| `--update-tags` | Tags tatsächlich schreiben |
+| `--fetch-youtube` | YouTube-Videos und Views abrufen |
+| `--interactive, -i` | Interaktiver Konflikt-Modus |
+| `--dry-run` | Vorschau ohne Änderungen |
+| `--min-confidence <zahl>` | Mindest-Confidence (0-100) |
+
+**Beispiele:**
+```bash
+# Vollständige Anreicherung mit YouTube
+python main.py enrich ./music --update-tags --fetch-youtube
+
+# Test-Lauf ohne Änderungen
+python main.py enrich ./music --dry-run --fetch-youtube
+
+# Interaktive Konfliktlösung
+python main.py enrich ./music --interactive --update-tags
+```
+
+#### `enrich-single` - Einzelne Datei
+```bash
+python main.py enrich-single <datei> [optionen]
+```
+
+| Option | Beschreibung |
+|--------|-------------|
+| `--fetch-youtube` | YouTube-Daten abrufen |
+| `--update-tags` | Tags aktualisieren |
+
+**Beispiele:**
+```bash
+# Einzelne Datei mit YouTube-Daten
+python main.py enrich-single "2Pac - California Love.mp3" --fetch-youtube --update-tags
+
+# Nur Metadaten anzeigen
+python main.py enrich-single "song.mp3" --fetch-youtube
+```
+
+#### `info` - Datei-Informationen
+```bash
+python main.py info <datei>
+```
+
+**Beispiel:**
+```bash
+python main.py info "music/song.mp3"
+```
+
+## ⚙️ Konfiguration
+
+### API-Keys erforderlich
+
+| Service | Kostenlos bis | Link |
+|---------|---------------|------|
+| 🎥 **YouTube Data API** | 10.000 Requests/Tag | [Google Cloud Console](https://console.cloud.google.com/) |
+| 🎵 **Spotify Web API** | Unbegrenzt | [Spotify Developer](https://developer.spotify.com/dashboard) |
+| 🎧 **Last.fm API** | 5.000 Requests/Stunde | [Last.fm API](https://www.last.fm/api/account/create) |
+
+### Konfigurationsdatei
 ```yaml
-# config.yaml Beispiel
+# config/user_config.yaml
 api_keys:
-  musicbrainz: "user-agent-string"
-  lastfm: "api-key"
-  spotify_client_id: "client-id"
-  spotify_client_secret: "client-secret"
-  youtube: "api-key"
+  youtube_api_key: "YOUR_YOUTUBE_API_KEY"
+  spotify_client_id: "YOUR_SPOTIFY_CLIENT_ID"
+  spotify_client_secret: "YOUR_SPOTIFY_CLIENT_SECRET"
+  lastfm_api_key: "YOUR_LASTFM_API_KEY"
 
-tag_settings:
-  protected_tags:
-    - comment
-    - user_defined_1
-  processable_tags:
-    - artist
-    - title
-    - album
-    - date
-    - genre
-    - youtube_url
-    - play_count
-  auto_update_tags:
-    - genre
-    - date
-  
 matching_settings:
-  min_confidence: 80
-  fuzzy_threshold: 0.8
-  max_results_per_query: 10
-  
-youtube_settings:
-  search_format: "{artist} - {title} official"
-  fallback_search: "{artist} {title}"
-  min_view_count: 1000
+  min_confidence: 80        # Mindest-Confidence Score
+  fuzzy_threshold: 0.8      # Fuzzy-Matching Schwellwert
+  max_results_per_query: 10 # Max. Ergebnisse pro API-Anfrage
 ```
 
-## Implementierungsplan
+## 📊 Unterstützte Metadaten
 
-### Phase 1: Grundgerüst (Woche 1-2)
-1. **Projekt-Setup**
-   - Python-Umgebung einrichten
-   - Abhängigkeiten definieren (requirements.txt)
-   - Grundlegende Projektstruktur erstellen
+### Standard-Tags
+- **Basis**: Künstler, Titel, Album, Jahr, Genre, Track-Nummer
+- **Erweitert**: Album-Künstler, Disc-Nummer, Dauer
 
-2. **Datei-Scanner implementieren**
-   - MP3-Datei-Erkennung
-   - Basis-Metadaten-Extraktion
-   - Dateiname-Parsing
+### Custom YouTube-Tags
+- `YOUTUBE_URL` - Link zum besten Video
+- `YOUTUBE_VIEWS` - Anzahl Aufrufe
+- `YOUTUBE_LIKES` - Anzahl Likes  
+- `YOUTUBE_CHANNEL` - Kanal-Name
 
-3. **Konfigurationssystem**
-   - YAML-basierte Konfiguration
-   - Validierung der Konfigurationsdatei
-   - Standard-Konfiguration erstellen
+### Custom Spotify-Tags  
+- `SPOTIFY_ID` - Spotify Track-ID
+- `SPOTIFY_POPULARITY` - Popularity Score (0-100)
+- `SPOTIFY_ARTIST_FOLLOWERS` - Künstler-Follower
 
-### Phase 2: API-Integration (Woche 3-4)
-1. **MusicBrainz Integration**
-   - API-Client implementieren
-   - Künstler/Album/Titel-Suche
-   - Rate-Limiting beachten
+### Custom Last.fm-Tags
+- `LASTFM_PLAYCOUNT` - Anzahl Plays
+- `LASTFM_LISTENERS` - Anzahl Hörer
 
-2. **YouTube API Integration**
-   - Video-Suche implementieren
-   - Statistiken abrufen
-   - URL-Generierung
+## 🛡️ Sicherheit
 
-3. **Matching-Algorithmus**
-   - String-Ähnlichkeits-Funktionen
-   - Confidence-Score-Berechnung
-   - Multi-Source-Matching
+- **Automatische Backups** vor jeder Tag-Änderung
+- **Geschützte Tags** werden nie überschrieben
+- **Confidence-basierte Updates** nur bei hoher Sicherheit
+- **Dry-Run-Modus** zum sicheren Testen
 
-### Phase 3: Tag-Management (Woche 5-6)
-1. **ID3-Tag-Manipulation**
-   - Sichere Tag-Updates
-   - Backup-Mechanismus
-   - Tag-Validierung
+## 📝 Beispiel-Output
 
-2. **Konflikt-Erkennung**
-   - Vergleich vorhandener vs. neuer Daten
-   - Konflikt-Kategorisierung
-   - Automatische Auflösungsregeln
-
-### Phase 4: Benutzerinteraktion (Woche 7-8)
-1. **CLI-Interface**
-   - Kommandozeilen-Parameter
-   - Progress-Anzeige
-   - Logging-System
-
-2. **Interaktive Konfliktauflösung**
-   - Benutzer-Prompts
-   - Batch-Entscheidungen
-   - Präferenz-Speicherung
-
-### Phase 5: Erweiterte Features (Woche 9-10)
-1. **Genre-Klassifikation**
-   - Multi-API-Genre-Aggregation
-   - ML-basierte Vorhersagen
-   - Genre-Hierarchie-Mapping
-
-2. **Performance-Optimierung**
-   - Parallele API-Anfragen
-   - Caching-Mechanismus
-   - Batch-Processing
-
-## Verwendete APIs und Bibliotheken
-
-### APIs
-- **MusicBrainz**: Primäre Musikdatenbank (kostenlos)
-- **Last.fm**: Genre und Künstler-Informationen
-- **YouTube Data API v3**: Video-Suche und Statistiken
-- **Spotify Web API**: Alternative Metadaten-Quelle
-- **Discogs API**: Detaillierte Veröffentlichungsinformationen
-
-### Python-Bibliotheken
-```
-# Core Dependencies
-mutagen          # ID3-Tag-Manipulation
-requests         # HTTP-Anfragen
-pyyaml          # Konfigurationsdateien
-click           # CLI-Interface
-tqdm            # Progress-Bars
-fuzzywuzzy      # String-Matching
-python-Levenshtein  # String-Distanz-Berechnung
-
-# Optional Dependencies
-spotipy         # Spotify API-Client
-google-api-python-client  # YouTube API
-discogs-client  # Discogs API
-musicbrainzngs  # MusicBrainz API-Client
-```
-
-## Dateistruktur
-```
-mp3Tagger/
-├── config/
-│   ├── default_config.yaml
-│   └── user_config.yaml
-├── src/
-│   ├── __init__.py
-│   ├── file_scanner.py
-│   ├── metadata_resolver.py
-│   ├── youtube_handler.py
-│   ├── genre_classifier.py
-│   ├── tag_manager.py
-│   ├── conflict_resolver.py
-│   ├── config_manager.py
-│   └── utils/
-│       ├── __init__.py
-│       ├── string_matching.py
-│       └── api_helpers.py
-├── tests/
-│   ├── test_file_scanner.py
-│   ├── test_metadata_resolver.py
-│   └── test_integration.py
-├── logs/
-├── backups/
-├── main.py
-├── requirements.txt
-├── setup.py
-└── README.md
-```
-
-## Usage Examples
-
-### Basis-Verwendung
 ```bash
-python main.py --directory "C:\Music\MP3s" --config config/user_config.yaml
+$ python main.py enrich-single "2Pac & Dr. Dre - California Love.mp3" --fetch-youtube --update-tags
+
+🎵 Datei: 2Pac & Dr. Dre - California Love.mp3
+🎤 Künstler: 2Pac & Dr. Dre  
+🎼 Titel: California Love
+
+🔍 Suche Metadaten...
+✓ 18 Ergebnisse gefunden
+  1. musicbrainz: 2Pac & Dr. Dre - California Love (Confidence: 0.97)
+  2. spotify: 2Pac - California Love (Confidence: 0.95)
+
+🎥 Suche YouTube-Videos...  
+  1. 2Pac ft. Dr. Dre - California Love (Official Video)
+     Channel: UPROXX
+     Views: 106.6M
+     URL: https://www.youtube.com/watch?v=omfz62qu_Bc
+
+✅ Tags erfolgreich aktualisiert!
 ```
 
-### Erweiterte Optionen
+## 🔧 Entwicklung
+
+### Requirements
+- Python 3.8+
+- mutagen, requests, spotipy, aiohttp
+- YouTube Data API v3, Spotify Web API, Last.fm API
+
+### Tests
 ```bash
-python main.py \
-  --directory "C:\Music\MP3s" \
-  --recursive \
-  --min-confidence 85 \
-  --backup-dir "C:\Music\Backups" \
-  --log-level INFO \
-  --interactive
+# API-Verbindungen testen
+python main.py test-apis
+
+# Konfiguration anzeigen  
+python main.py config-info
 ```
 
-### Batch-Modus (nicht-interaktiv)
-```bash
-python main.py \
-  --directory "C:\Music\MP3s" \
-  --batch-mode \
-  --auto-resolve-conflicts \
-  --confidence-threshold 90
-```
+## 📜 Lizenz
 
-## Herausforderungen und Lösungsansätze
+MIT License - siehe [LICENSE](LICENSE) für Details.
 
-### 1. Song-Matching-Genauigkeit
-**Problem**: Dateinamen entsprechen nicht immer dem exakten Künstler-/Titel-Format
-**Lösung**: 
-- Multi-Level-Matching mit verschiedenen Parsing-Strategien
-- Fuzzy-Matching mit konfigurierbaren Schwellenwerten
-- Manual-Override für problematische Dateien
+## 🤝 Beitragen
 
-### 2. API-Rate-Limiting
-**Problem**: Verschiedene APIs haben unterschiedliche Rate-Limits
-**Lösung**:
-- Intelligentes Rate-Limiting pro API
-- Request-Caching zur Minimierung redundanter Anfragen
-- Graceful Fallbacks zwischen APIs
+Contributions sind willkommen! Siehe [ROADMAP.md](ROADMAP.md) für geplante Features.
 
-### 3. Genre-Konsistenz
-**Problem**: Verschiedene APIs verwenden unterschiedliche Genre-Klassifikationen
-**Lösung**:
-- Genre-Mapping-Tabellen zwischen APIs
-- Gewichtete Genre-Aggregation
-- Benutzer-konfigurierbare Genre-Präferenzen
+---
 
-### 4. YouTube-Matching-Genauigkeit
-**Problem**: Falsche Videos können gematcht werden
-**Lösung**:
-- Multi-Parameter-Suche (Künstler + Titel + "official")
-- View-Count-Mindestanzahl als Filter
-- Titel-Ähnlichkeits-Prüfung für Suchergebnisse
-
-## Qualitätssicherung
-
-### Testing-Strategie
-- Unit-Tests für alle Module
-- Integration-Tests mit Mock-APIs
-- End-to-End-Tests mit Beispiel-MP3s
-- Performance-Tests mit großen Musiksammlungen
-
-### Monitoring und Logging
-- Detailliertes Logging aller API-Anfragen
-- Erfolgs-/Fehlerstatistiken
-- Performance-Metriken
-- Benutzer-Aktions-Protokollierung
-
-## Zukünftige Erweiterungen
-
-### Phase 6: GUI-Interface
-- Desktop-Anwendung mit tkinter/PyQt
-- Drag-and-Drop-Funktionalität
-- Visuelle Konfliktauflösung
-- Batch-Operations-Dashboard
-
-### Phase 7: Cloud-Integration
-- Backup in Cloud-Storage
-- Shared Metadaten-Cache
-- Collaborative Tagging
-- API-Key-Management-Service
-
-### Phase 8: Machine Learning
-- Personalisierte Genre-Klassifikation
-- Automatische Konfliktauflösung basierend auf Benutzerverhalten
-- Anomalie-Erkennung für fehlerhafte Metadaten
-- Empfehlungssystem für ähnliche Künstler
-
-## Getting Started
-
-1. **Repository klonen**
-2. **Abhängigkeiten installieren**: `pip install -r requirements.txt`
-3. **API-Keys konfigurieren** in `config/user_config.yaml`
-4. **Erstes Scan starten**: `python main.py --directory /path/to/mp3s --interactive`
-
-## Lizenz
-
-MIT License - Siehe LICENSE Datei für Details.
+**Made with ❤️ for music lovers**
