@@ -242,14 +242,19 @@ class MetadataResolver:
                     if 'date' in release:
                         year_str = release['date']
                         mb_year = extract_year_from_string(year_str)
-            
-            # Genres extrahieren (falls verfügbar)
+              # Genres extrahieren (falls verfügbar)
             if 'tag-list' in recording:
                 for tag in recording['tag-list']:
-                    if tag.get('count', 0) > 0:
-                        genre = clean_genre(tag.get('name', ''))
-                        if genre and genre not in mb_genres:
-                            mb_genres.append(genre)
+                    try:
+                        # Vorsichtige Count-Überprüfung
+                        count = tag.get('count', 0)
+                        if isinstance(count, (int, float)) and count > 0:
+                            genre = clean_genre(tag.get('name', ''))
+                            if genre and genre not in mb_genres:
+                                mb_genres.append(genre)
+                    except (TypeError, ValueError) as tag_error:
+                        logger.debug(f"Fehler beim Verarbeiten von MusicBrainz-Tag: {tag_error}")
+                        continue
             
             # Confidence-Score berechnen
             confidence = match_artist_title(
@@ -261,14 +266,18 @@ class MetadataResolver:
                 confidence=confidence,
                 artist=mb_artist,
                 title=mb_title,
-                album=mb_album,
-                year=mb_year,
+                album=mb_album,                year=mb_year,
                 genres=mb_genres,
                 musicbrainz_id=mb_id
             )
         
+        except (TypeError, ValueError, KeyError) as parse_error:
+            # Normale Parsing-Probleme nur als Debug loggen
+            logger.debug(f"MusicBrainz-Parsing-Problem: {parse_error}")
+            return None
         except Exception as e:
-            logger.warning(f"Fehler beim Parsen von MusicBrainz-Daten: {e}")
+            # Nur unerwartete Fehler als Warning loggen
+            logger.warning(f"Unerwarteter Fehler beim Parsen von MusicBrainz-Daten: {e}")
             return None
     
     async def _query_spotify(

@@ -36,6 +36,17 @@ def setup_cli_logging(verbose: bool = False):
     
     # CLI Handler hinzufügen (zusätzlich zu Config-Handlers)
     logger.addHandler(console_handler)
+    
+    # Störende Third-Party-Logs unterdrücken
+    # MusicBrainz XML-Parser-Warnungen nur bei Debug-Level anzeigen
+    logging.getLogger('musicbrainzngs').setLevel(logging.WARNING if not verbose else logging.DEBUG)
+    
+    # Google API Cache-Warnungen unterdrücken
+    logging.getLogger('googleapiclient.discovery_cache').setLevel(logging.ERROR)
+    
+    # Weitere potentiell störende Logs
+    logging.getLogger('urllib3').setLevel(logging.WARNING)
+    logging.getLogger('requests').setLevel(logging.WARNING)
 
 
 @click.group()
