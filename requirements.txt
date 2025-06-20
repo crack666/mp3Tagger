@@ -6,6 +6,7 @@ click>=8.1.7            # CLI-Interface
 tqdm>=4.66.1            # Progress-Bars
 fuzzywuzzy>=0.18.0      # String-Matching
 python-Levenshtein>=0.21.1  # String-Distanz-Berechnung
+aiohttp>=3.9.0          # Asynchrone HTTP-Anfragen
 
 # Optional Dependencies
 spotipy>=2.23.0         # Spotify API-Client
