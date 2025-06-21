@@ -81,11 +81,13 @@ def enrich(ctx, directory: str, recursive: bool, dry_run: bool,
                 'skipped': 0,
                 'errors': 0
             }
-            
-            # Progress Bar für Verarbeitung
+              # Progress Bar für Verarbeitung
             with click.progressbar(mp3_files, label='Verarbeite Dateien...') as files:
-                for file_path in files:
+                for mp3_file_info in files:
                     try:
+                        # Extrahiere den tatsächlichen Dateipfad aus Mp3FileInfo
+                        file_path = mp3_file_info.file_path
+                        
                         # Aktuelle Tags laden
                         current_tags = tag_manager.read_tags(file_path)
                         results['processed'] += 1
@@ -127,12 +129,31 @@ def enrich(ctx, directory: str, recursive: bool, dry_run: bool,
                                     enrichment_data['youtube'] = best_video
                             except Exception as e:
                                 logger.debug(f"YouTube-Fehler für {file_path.name}: {e}")
-                        
-                        # Anreicherung durchführen, wenn Daten gefunden
+                          # Anreicherung durchführen, wenn Daten gefunden
                         if enrichment_data:
+                            # MetadataResult Objekte zu Dictionaries konvertieren (wie in enrich-single)
+                            enrichment_dict = {}
+                            for source, result in enrichment_data.items():
+                                if hasattr(result, '__dict__'):
+                                    # MetadataResult zu Dictionary
+                                    result_dict = {}
+                                    if result.artist:
+                                        result_dict['TPE1'] = result.artist
+                                    if result.title:
+                                        result_dict['TIT2'] = result.title
+                                    if result.album:
+                                        result_dict['TALB'] = result.album
+                                    if result.year:
+                                        result_dict['TDRC'] = str(result.year)
+                                    if result.genres:
+                                        result_dict['TCON'] = ', '.join(result.genres)
+                                    enrichment_dict[source] = result_dict
+                                else:
+                                    enrichment_dict[source] = result
+                            
                             # Konflikte auflösen
                             resolved_tags = conflict_resolver.resolve_metadata_conflicts(
-                                current_tags, enrichment_data
+                                current_tags, enrichment_dict
                             )
                             
                             if interactive:
