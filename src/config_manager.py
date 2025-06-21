@@ -145,10 +145,9 @@ class ConfigManager:
         
         # Logging konfigurieren
         log_level = getattr(logging, log_config['level'])
-        
-        # Formatter definieren
+          # Formatter definieren (mit führendem Leerzeichen für bessere Progressbar-Kompatibilität)
         formatter = logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+            ' %(asctime)s - %(name)s - %(levelname)s - %(message)s'
         )
         
         # Root Logger konfigurieren

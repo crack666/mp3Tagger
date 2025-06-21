@@ -16,8 +16,8 @@ def setup_cli_logging(verbose: bool = False):
     """Konfiguriert das Logging für die Kommandozeile."""
     level = logging.DEBUG if verbose else logging.INFO
     
-    # Einfacher Formatter für CLI
-    formatter = logging.Formatter('%(levelname)s: %(message)s')
+    # Einfacher Formatter für CLI mit führendem Leerzeichen für bessere Progressbar-Kompatibilität
+    formatter = logging.Formatter(' %(levelname)s: %(message)s')
     
     # Console Handler
     console_handler = logging.StreamHandler()
