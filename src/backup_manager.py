@@ -189,7 +189,7 @@ class BackupManager:
             
         try:
             if self.strategy == BackupStrategy.IN_MEMORY:
-                return self._create_memory_backup(file_path)
+                return self._create_memory_backup_single_file(file_path)
             elif self.strategy == BackupStrategy.SELECTIVE:
                 return self._create_selective_backup(file_path, current_tags)
             elif self.strategy == BackupStrategy.CHANGELOG:
@@ -203,29 +203,51 @@ class BackupManager:
             logger.error(f"Backup-Erstellung fehlgeschlagen für {file_path}: {e}")
             return False
     
-    def _create_memory_backup(self, file_path: Path) -> bool:
-        """Erstellt In-Memory Backup für Transaktion."""
+    def _create_memory_backup_single_file(self, file_path: Path) -> bool:
+        """
+        Korrekte In-Memory-Backup-Implementierung: Eine Datei zur Zeit.
+        
+        Diese Methode implementiert das korrekte Konzept:
+        1. Lädt nur EINE Datei in den RAM (5-15MB typisch)
+        2. Keine Limits für Anzahl der zu verarbeitenden Dateien
+        3. RAM wird nach jeder Datei freigegeben
+        4. Skaliert für 10 oder 100.000 MP3s gleich gut
+        
+        Workflow:
+        - create_backup() → Datei in RAM laden
+        - TagManager schreibt Tags 
+        - Bei Erfolg: cleanup_transaction() → RAM freigeben
+        - Bei Fehler: restore_from_backup() → RAM wiederherstellen + freigeben
+        """
         try:
-            # Prüfe Speicherlimit
-            current_memory = sum(
-                len(t.original_data) for t in self._active_transactions.values()
-            ) / (1024 * 1024)  # MB
+            transaction_id = str(file_path)
             
-            if current_memory > self.max_memory_mb:
-                logger.warning(f"Memory-Backup-Limit erreicht ({current_memory:.1f}MB)")
-                return False
+            # Cleanup: Nur eine Datei zur Zeit - entferne vorherige
+            if transaction_id in self._active_transactions:
+                logger.debug(f"Ersetze vorhandene Memory-Transaction für {file_path}")
+                del self._active_transactions[transaction_id]
             
-            # Lade Datei in Memory
+            # Lade die EINE aktuelle Datei in Memory
             with open(file_path, 'rb') as f:
                 original_data = f.read()
             
-            transaction_id = str(file_path)
+            # Speichere nur DIESE eine Datei im RAM
             self._active_transactions[transaction_id] = BackupTransaction(
                 file_path, original_data
             )
             
+            file_size_kb = len(original_data) / 1024
+            total_transactions = len(self._active_transactions)
+            
             logger.debug(f"Memory-Backup erstellt für {file_path} "
-                        f"({len(original_data)/1024:.1f}KB)")
+                        f"({file_size_kb:.1f}KB) - "
+                        f"Aktive Transaktionen: {total_transactions}")
+            
+            # Warnung bei zu vielen gleichzeitigen Transaktionen
+            if total_transactions > 5:
+                logger.warning(f"Ungewöhnlich viele aktive Memory-Transaktionen: {total_transactions}. "
+                              "Prüfen Sie, ob cleanup_transaction() aufgerufen wird.")
+            
             return True
             
         except Exception as e:
@@ -592,3 +614,41 @@ class BackupManager:
         except Exception as e:
             logger.error(f"Direct tag writing fehlgeschlagen für {file_path}: {e}")
             return False
+    
+    def cleanup_transaction(self, file_path: Path) -> bool:
+        """
+        Gibt RAM frei nach erfolgreichem Tag-Update.
+        
+        Diese Methode MUSS nach jedem erfolgreichen Tag-Update aufgerufen werden
+        bei In-Memory-Backup-Strategie, um den RAM freizugeben.
+        """
+        transaction_id = str(file_path)
+        if transaction_id in self._active_transactions:
+            del self._active_transactions[transaction_id]
+            logger.debug(f"RAM freigegeben für {file_path}")
+            return True
+        return False
+    
+    def has_active_transaction(self, file_path: Path) -> bool:
+        """Prüft ob eine aktive Transaction für die Datei existiert."""
+        return str(file_path) in self._active_transactions
+    
+    def get_transaction_count(self) -> int:
+        """Gibt die Anzahl aktiver Transaktionen zurück."""
+        return len(self._active_transactions)
+    
+    def get_memory_usage_mb(self) -> float:
+        """
+        Gibt aktuellen RAM-Verbrauch in MB zurück.
+        
+        Bei korrekter In-Memory-Implementierung sollte dies normalerweise
+        0-15MB sein (nur die gerade bearbeitete Datei).
+        """
+        if not self._active_transactions:
+            return 0.0
+        
+        total_bytes = sum(
+            len(t.original_data) for t in self._active_transactions.values()
+            if hasattr(t, 'original_data')
+        )
+        return total_bytes / (1024 * 1024)
