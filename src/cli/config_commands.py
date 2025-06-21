@@ -51,18 +51,20 @@ def config_info(ctx):
     tag_settings = config.get('tag_settings', {})
     conflict_resolution = tag_settings.get('conflict_resolution', 'ask')
     click.echo(f"Konfliktauflösung: {conflict_resolution}")
-    
-    # Custom Tags
+      # Custom Tags
     custom_tags = config.get('custom_tags', {})
     if custom_tags:
         click.echo(f"\nCustom Tags ({len(custom_tags)}):")
         for tag_name, tag_config in custom_tags.items():
-            enabled = tag_config.get('enabled', False)
-            status = "✓" if enabled else "✗"
-            click.echo(f"  {status} {tag_name}")
+            if isinstance(tag_config, dict):
+                enabled = tag_config.get('enabled', False)
+                status = "✓" if enabled else "✗"
+                click.echo(f"  {status} {tag_name}")
+            else:
+                click.echo(f"  ? {tag_name} (invalid config)")
     
     # Geschützte Tags
-    protected_tags = config.get('tag_settings.protected_tags', [])
+    protected_tags = tag_settings.get('protected_tags', [])
     click.echo(f"\nGeschützte Tags ({len(protected_tags)}): {', '.join(protected_tags)}")
 
 

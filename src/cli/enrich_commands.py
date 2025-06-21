@@ -105,25 +105,17 @@ def enrich(ctx, directory: str, recursive: bool, dry_run: bool,
                             click.echo(f"⚠ Überspringe {file_path.name}: Unzureichende Informationen")
                             results['skipped'] += 1
                             continue
-                        
-                        # Metadaten sammeln
+                          # Metadaten sammeln
                         enrichment_data = {}
                         
-                        # Standard-APIs durchsuchen
-                        if 'musicbrainz' in enabled_apis:
-                            mb_results = await metadata_resolver.search_musicbrainz(search_artist, search_title)
-                            if mb_results:
-                                enrichment_data['musicbrainz'] = mb_results[0]  # Bestes Ergebnis
+                        # Alle APIs auf einmal mit resolve_metadata abfragen
+                        metadata_results = await metadata_resolver.resolve_metadata(search_artist, search_title)
                         
-                        if 'spotify' in enabled_apis:
-                            spotify_results = await metadata_resolver.search_spotify(search_artist, search_title)
-                            if spotify_results:
-                                enrichment_data['spotify'] = spotify_results[0]
-                        
-                        if 'lastfm' in enabled_apis:
-                            lastfm_results = await metadata_resolver.search_lastfm(search_artist, search_title)
-                            if lastfm_results:
-                                enrichment_data['lastfm'] = lastfm_results
+                        # Beste Ergebnisse nach Quelle gruppieren
+                        if metadata_results:
+                            for result in metadata_results:
+                                if result.source not in enrichment_data:
+                                    enrichment_data[result.source] = result
                         
                         # YouTube-Videos abrufen (falls gewünscht)
                         if fetch_youtube and 'youtube' in enabled_apis:
@@ -274,37 +266,20 @@ def enrich_single(ctx, file_path: str, dry_run: bool, interactive: bool,
                 return
             
             click.echo(f"\nSuche nach: {search_artist} - {search_title}")
-            
-            # Metadaten sammeln
+              # Metadaten sammeln mit vereinfachter API-Abfrage
             enrichment_data = {}
             
-            # Standard-APIs durchsuchen
-            if 'musicbrainz' in enabled_apis:
-                click.echo("Suche in MusicBrainz...")
-                mb_results = await metadata_resolver.search_musicbrainz(search_artist, search_title)
-                if mb_results:
-                    enrichment_data['musicbrainz'] = mb_results[0]
-                    click.echo(f"  ✓ {len(mb_results)} Ergebnis(se) gefunden")
-                else:
-                    click.echo("  ⚠ Keine Ergebnisse")
+            # Alle APIs auf einmal abfragen
+            click.echo("Suche in MusicBrainz...")
+            metadata_results = await metadata_resolver.resolve_metadata(search_artist, search_title)
             
-            if 'spotify' in enabled_apis:
-                click.echo("Suche in Spotify...")
-                spotify_results = await metadata_resolver.search_spotify(search_artist, search_title)
-                if spotify_results:
-                    enrichment_data['spotify'] = spotify_results[0]
-                    click.echo("  ✓ Ergebnis gefunden")
-                else:
-                    click.echo("  ⚠ Keine Ergebnisse")
-            
-            if 'lastfm' in enabled_apis:
-                click.echo("Suche in Last.fm...")
-                lastfm_results = await metadata_resolver.search_lastfm(search_artist, search_title)
-                if lastfm_results:
-                    enrichment_data['lastfm'] = lastfm_results
-                    click.echo("  ✓ Track-Info gefunden")
-                else:
-                    click.echo("  ⚠ Keine Ergebnisse")
+            if metadata_results:
+                click.echo(f"  ✓ {len(metadata_results)} Ergebnis(se) gefunden")
+                for result in metadata_results:
+                    if result.source not in enrichment_data:
+                        enrichment_data[result.source] = result
+            else:
+                click.echo("  ⚠ Keine Ergebnisse")
             
             # YouTube-Videos abrufen (falls gewünscht)
             if fetch_youtube and 'youtube' in enabled_apis:
@@ -321,14 +296,33 @@ def enrich_single(ctx, file_path: str, dry_run: bool, interactive: bool,
                         click.echo("  ⚠ Keine Videos gefunden")
                 except Exception as e:
                     click.echo(f"  ✗ YouTube-Fehler: {e}")
-            
-            # Anreicherung durchführen, wenn Daten gefunden
+              # Anreicherung durchführen, wenn Daten gefunden
             if enrichment_data:
                 click.echo("\nVorgeschlagene Metadaten:")
                 
+                # MetadataResult Objekte zu Dictionaries konvertieren
+                enrichment_dict = {}
+                for source, result in enrichment_data.items():
+                    if hasattr(result, '__dict__'):
+                        # MetadataResult zu Dictionary
+                        result_dict = {}
+                        if result.artist:
+                            result_dict['TPE1'] = result.artist
+                        if result.title:
+                            result_dict['TIT2'] = result.title
+                        if result.album:
+                            result_dict['TALB'] = result.album
+                        if result.year:
+                            result_dict['TDRC'] = str(result.year)
+                        if result.genres:
+                            result_dict['TCON'] = ', '.join(result.genres)
+                        enrichment_dict[source] = result_dict
+                    else:
+                        enrichment_dict[source] = result
+                
                 # Konflikte auflösen
                 resolved_tags = conflict_resolver.resolve_metadata_conflicts(
-                    current_tags, enrichment_data
+                    current_tags, enrichment_dict
                 )
                 
                 # Änderungen anzeigen
