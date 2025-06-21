@@ -201,14 +201,40 @@ backup:
   # Automatische Backups vor Tag-Änderungen
   auto_backup: true
   
+  # Backup-Strategie (changelog, in_memory, selective, full_copy, disabled)
+  # changelog: Leichtgewichtige JSON-basierte Änderungsprotokolle (empfohlen)
+  # in_memory: RAM-basierte Transaktions-Backups für kleine Bibliotheken
+  # selective: Nur kritische Tags als kompakte JSON-Backups
+  # full_copy: Vollständige Dateikopien (nur für kleine Bibliotheken)
+  # disabled: Keine Backups
+  strategy: "changelog"
+  
   # Backup-Verzeichnis
   directory: "backups"
   
   # Maximales Alter der Backups (Tage)
-  max_age_days: 90
+  max_age_days: 30
   
-  # Komprimierung der Backups
-  compress: true
+  # Maximaler RAM-Verbrauch für In-Memory Backups (MB)
+  max_memory_mb: 500
+  
+  # Kritische Tags für Selective Backup-Strategie
+  critical_tags:
+    - "TIT2"      # Title
+    - "TPE1"      # Artist  
+    - "TALB"      # Album
+    - "TDRC"      # Date
+    - "TCON"      # Genre
+    - "TPE2"      # Album Artist
+    - "TRCK"      # Track Number
+    - "artist"    # Mutagen Key
+    - "title"     # Mutagen Key
+    - "album"     # Mutagen Key
+    - "date"      # Mutagen Key
+    - "genre"     # Mutagen Key
+  
+  # Komprimierung der Backups (nur für full_copy)
+  compress: false
 
 # Conflict Management Einstellungen
 conflict_management:

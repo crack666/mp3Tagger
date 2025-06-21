@@ -300,6 +300,49 @@ api_keys:
             print("Bitte fügen Sie Ihre API-Schlüssel hinzu.")
         except Exception as e:
             print(f"Fehler beim Erstellen der Benutzer-Konfiguration: {e}")
+    
+    def update(self, key: str, value: Any) -> bool:
+        """
+        Aktualisiert einen Konfigurationswert in der Benutzerkonfiguration.
+        
+        Args:
+            key: Konfigurationsschlüssel (z.B. "backup.strategy")
+            value: Neuer Wert
+            
+        Returns:
+            True bei Erfolg
+        """
+        try:
+            # Lade aktuelle Benutzer-Konfiguration
+            user_config = {}
+            if self.user_config_path.exists():
+                user_config = self._load_yaml_file(self.user_config_path)
+            
+            # Setze neuen Wert mit verschachtelten Schlüsseln
+            keys = key.split('.')
+            current_dict = user_config
+            
+            for k in keys[:-1]:
+                if k not in current_dict:
+                    current_dict[k] = {}
+                current_dict = current_dict[k]
+            
+            current_dict[keys[-1]] = value
+            
+            # Speichere aktualisierte Konfiguration
+            import yaml
+            with open(self.user_config_path, 'w', encoding='utf-8') as f:
+                yaml.dump(user_config, f, default_flow_style=False, 
+                         allow_unicode=True, indent=2)
+            
+            # Lade Konfiguration neu
+            self.config = self._load_config()
+            
+            return True
+            
+        except Exception as e:
+            print(f"Fehler beim Aktualisieren der Konfiguration: {e}")
+            return False
 
 
 # Globale Konfigurationsinstanz
@@ -337,3 +380,18 @@ def reload_config(config_path: Optional[str] = None) -> ConfigManager:
     global _config_instance
     _config_instance = ConfigManager(config_path)
     return _config_instance
+
+
+def update_config(key: str, value: Any) -> bool:
+    """
+    Aktualisiert einen Konfigurationswert.
+    
+    Args:
+        key: Konfigurationsschlüssel (z.B. "backup.strategy")
+        value: Neuer Wert
+        
+    Returns:
+        True bei Erfolg
+    """
+    config = get_config()
+    return config.update(key, value)

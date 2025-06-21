@@ -226,11 +226,85 @@ matching_settings:
 - `LASTFM_PLAYCOUNT` - Anzahl Plays
 - `LASTFM_LISTENERS` - Anzahl Hörer
 
-## 🛡️ Sicherheit
+## 🛡️ Sicherheit & Backup
 
+### Standardmäßig aktiviert ✅
+MP3 Tagger schützt Ihre Musikbibliothek automatisch mit **intelligenten Backup-Strategien**:
 - **Automatische Backups** vor jeder Tag-Änderung
+- **Changelog-System** als Standard (ideal für große Bibliotheken)
+- **Transaktionale Sicherheit** mit automatischem Rollback bei Fehlern
+- **Speicher-effizient**: ~100 Bytes pro Änderung statt kompletter Dateikopien
+
+### Moderne Backup-Strategien
+MP3 Tagger bietet mehrere intelligente Backup-Strategien für verschiedene Anwendungsfälle:
+
+#### 📝 **Changelog (Standard-Empfehlung)**
+- **Leichtgewichtig**: Nur Änderungen werden protokolliert, nicht ganze Dateien
+- **Effizient**: Ideal für große Bibliotheken (10.000+ MP3s)
+- **Vollständig**: SQLite-basierte Protokollierung aller Tag-Änderungen
+- **Wiederherstellung**: Präzise Wiederherstellung einzelner Tags oder ganzer Dateien
+- **Speicherbedarf**: ~50-100MB für 10.000 MP3s statt 500GB
+
+#### 🧠 **In-Memory Backup**
+- **Transaktional**: Datei wird im RAM gehalten während der Änderungen
+- **Schnell**: Sofortiger Rollback bei Fehlern
+- **Hybrid-Einsatz**: Automatisch für kleine Dateien, Changelog für große Sammlungen
+- **RAM-Limit**: Konfigurierbar (Standard: 500MB)
+
+#### 🎯 **Selective Backup**
+- **Kritische Tags**: Nur wichtige Tags werden gesichert
+- **Kompakt**: JSON-basierte Backups für Metadaten
+- **Performance**: Balanciert zwischen Sicherheit und Effizienz
+
+#### 💾 **Full Copy (Legacy)**
+- **Vollständig**: Komplette Dateikopien vor Änderungen
+- **Sicher**: Maximale Sicherheit für kritische Anwendungen
+- **Aufwendig**: Nur für kleine Bibliotheken empfohlen
+
+### Backup-Management
+```bash
+# Backup-Status anzeigen (zeigt aktuelle Strategie und Statistiken)
+mp3tagger backup status
+
+# Backup-Strategien
+mp3tagger backup strategy changelog  # Standard - empfohlen für große Bibliotheken
+mp3tagger backup strategy in_memory  # RAM-basiert für kleine Bibliotheken  
+mp3tagger backup strategy selective  # Nur kritische Tags (kompakt)
+mp3tagger backup strategy disabled   # Keine Backups (nicht empfohlen)
+
+# Backup-Wartung
+mp3tagger backup cleanup --dry-run   # Vorschau: Welche Backups würden gelöscht?
+mp3tagger backup cleanup --force     # Alte Backups aufräumen
+
+# Wiederherstellung
+mp3tagger backup restore path/to/song.mp3                    # Neuestes Backup
+mp3tagger backup restore path/to/song.mp3 --timestamp 20250621_143022  # Spezifisches Backup
+```
+
+### 💡 **Empfohlene Konfiguration für verschiedene Anwendungsfälle:**
+
+**🏠 Heimnutzer (< 5.000 MP3s):**
+```bash
+mp3tagger backup strategy changelog  # Standard - bereits optimal
+```
+
+**🎵 DJ/Sammler (5.000-50.000 MP3s):**
+```bash
+mp3tagger backup strategy changelog  # Empfohlen
+# Optional: RAM-Limit anpassen in config/user_config.yaml
+# backup.max_memory_mb: 1000
+```
+
+**🏢 Professionell (50.000+ MP3s):**
+```bash
+mp3tagger backup strategy changelog  # Obligatorisch
+# backup.max_age_days: 7  # Kürzere Aufbewahrung
+```
+
+### Weitere Sicherheitsfeatures
 - **Geschützte Tags** werden nie überschrieben
 - **Confidence-basierte Updates** nur bei hoher Sicherheit
+- **Automatischer Rollback** bei Fehlern
 - **Dry-Run-Modus** zum sicheren Testen
 
 ## 🛠️ Conflict Management
@@ -298,6 +372,21 @@ python main.py test-apis
 
 # Status überprüfen
 python main.py config-info
+```
+
+### Backup-Management Beispiele
+```bash
+# Status der Backups prüfen
+mp3tagger backup status
+
+# Changelog-Strategie aktivieren
+mp3tagger backup strategy changelog
+
+# Alte Backups aufräumen (Vorschau)
+mp3tagger backup cleanup --dry-run
+
+# Datei wiederherstellen aus Backup
+mp3tagger backup restore "path/to/song.mp3"
 ```
 
 ## 📝 Beispiel-Output

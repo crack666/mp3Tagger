@@ -13,6 +13,12 @@ from datetime import datetime
 import json
 
 from mutagen.mp3 import MP3
+from mutagen.id3 import (
+    ID3NoHeaderError, TALB, TPE1, TIT2, TDRC, TCON, 
+    TPE2, TRCK, TXXX, COMM, USLT
+)
+
+from .backup_manager import BackupManager
 from mutagen.id3 import ID3, TIT2, TPE1, TALB, TPE2, TDRC, TCON, TRCK, TPOS
 from mutagen.id3 import TXXX, WXXX, COMM, APIC
 
@@ -27,6 +33,11 @@ class TagManager:
     def __init__(self, config=None):
         """Initialisiert den Tag Manager."""
         self.config = config or get_config()
+        
+        # Initialisiere modernen Backup-Manager
+        self.backup_manager = BackupManager(self.config)
+        
+        # Legacy-Backup Einstellungen (für Fallback)
         self.backup_enabled = self.config.get('backup.auto_backup', True)
         self.backup_dir = Path(self.config.get('backup.directory', 'backups'))
         
@@ -195,8 +206,7 @@ class TagManager:
                             try:
                                 mp3_tags[key] = int(value)
                             except:
-                                mp3_tags[key] = value
-                        # Datum konvertieren
+                                mp3_tags[key] = value                        # Datum konvertieren
                         elif key in ['youtube_published', 'last_updated']:
                             try:
                                 mp3_tags[key] = datetime.fromisoformat(value)
@@ -214,7 +224,7 @@ class TagManager:
         create_backup: bool = True
     ) -> bool:
         """
-        Schreibt Tags in eine MP3-Datei.
+        Schreibt Tags in eine MP3-Datei mit modernem Backup-System.
         
         Args:
             file_path: Pfad zur MP3-Datei
@@ -224,10 +234,14 @@ class TagManager:
         Returns:
             True bei Erfolg, False bei Fehler
         """
+        backup_created = False
+        
         try:
-            # Backup erstellen
+            # Modernes Backup erstellen
             if create_backup and self.backup_enabled:
-                if not self._create_backup(file_path):
+                current_tags = self.read_tags(file_path)
+                backup_created = self.backup_manager.create_backup(file_path, current_tags)
+                if not backup_created:
                     logger.warning(f"Backup-Erstellung fehlgeschlagen für {file_path}")
             
             # MP3-Datei laden
@@ -248,11 +262,22 @@ class TagManager:
             # Datei speichern
             audio_file.save()
             
+            # Changelog finalisieren (bei entsprechender Strategie)
+            if backup_created:
+                self.backup_manager.finalize_changelog(file_path, tags)
+                self.backup_manager.commit_transaction(file_path)
+            
             logger.info(f"Tags erfolgreich geschrieben: {file_path}")
             return True
             
         except Exception as e:
             logger.error(f"Fehler beim Schreiben der Tags für {file_path}: {e}")
+            
+            # Rollback bei Fehler
+            if backup_created:
+                self.backup_manager.rollback_transaction(file_path)
+                logger.info(f"Backup-Rollback ausgeführt für {file_path}")
+            
             return False
     
     def _write_standard_tags(self, audio_file: MP3, tags: Dict[str, Any]) -> None:
@@ -361,8 +386,7 @@ class TagManager:
     def _add_metadata_tracking(self, audio_file: MP3, tags: Dict[str, Any]) -> None:
         """Fügt Metadaten zur Nachverfolgung hinzu."""
         # Zeitstempel der letzten Aktualisierung
-        audio_file.tags["TXXX:LAST_UPDATED"] = TXXX(
-            encoding=3, 
+        audio_file.tags["TXXX:LAST_UPDATED"] = TXXX(            encoding=3, 
             desc="LAST_UPDATED", 
             text=datetime.now().isoformat()
         )
@@ -382,20 +406,27 @@ class TagManager:
                 text=str(tags['primary_source'])
             )
     
-    def _create_backup(self, file_path: Path) -> bool:
-        """Erstellt ein Backup einer MP3-Datei."""
-        try:
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            backup_filename = f"{file_path.stem}_{timestamp}{file_path.suffix}"
-            backup_path = self.backup_dir / backup_filename
+    def restore_from_backup(self, file_path: Path, 
+                           backup_timestamp: Optional[str] = None) -> bool:
+        """
+        Stellt eine Datei aus dem Backup wieder her.
+        
+        Args:
+            file_path: Pfad zur wiederherzustellenden Datei
+            backup_timestamp: Spezifischer Backup-Zeitstempel (None = neuestes)
             
-            shutil.copy2(file_path, backup_path)
-            logger.debug(f"Backup erstellt: {backup_path}")
-            return True
-            
-        except Exception as e:
-            logger.error(f"Backup-Erstellung fehlgeschlagen für {file_path}: {e}")
-            return False
+        Returns:
+            True bei Erfolg
+        """
+        return self.backup_manager.restore_from_backup(file_path, backup_timestamp)
+    
+    def get_backup_stats(self) -> Dict[str, Any]:
+        """Gibt Backup-Statistiken zurück."""
+        return self.backup_manager.get_backup_stats()
+    
+    def cleanup_old_backups(self) -> int:
+        """Entfernt alte Backups und gibt die Anzahl zurück."""
+        return self.backup_manager.cleanup_old_backups()
     
     def is_tag_protected(self, tag_name: str) -> bool:
         """

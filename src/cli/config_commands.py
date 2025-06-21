@@ -289,7 +289,6 @@ def conflict_info(ctx):
     # Gespeicherte Batch-Rules
     try:
         import json
-        from pathlib import Path
         
         rules_file = Path("batch_rules.json")
         if rules_file.exists():
@@ -318,12 +317,13 @@ def conflict_reset(ctx, clear_rules: bool, clear_preferences: bool):
     """Zurücksetzen von Conflict Management Einstellungen."""
     
     if not clear_rules and not clear_preferences:
-        click.echo("Keine Aktion gewählt. Verwenden Sie --help für Optionen.")
+        click.echo("⚠️  Keine Aktion gewählt. Verwenden Sie --clear-rules oder --clear-preferences")
         return
     
     if clear_rules:
         try:
-            from pathlib import Path
+            import json
+            
             rules_file = Path("batch_rules.json")
             if rules_file.exists():
                 rules_file.unlink()
@@ -335,7 +335,6 @@ def conflict_reset(ctx, clear_rules: bool, clear_preferences: bool):
     
     if clear_preferences:
         try:
-            from pathlib import Path
             prefs_file = Path("user_preferences.json")
             if prefs_file.exists():
                 prefs_file.unlink()
