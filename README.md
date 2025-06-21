@@ -70,7 +70,7 @@ python main.py enrich ./my-music --update-tags --fetch-youtube
 | `test-apis` | Testet API-Verbindungen |
 | `setup-apis` | Hilfe bei der API-Konfiguration |
 | `config-info` | Zeigt aktuelle Konfiguration |
-| `conflict-info` | Zeigt Conflict Management Konfiguration |
+| `conflict-info` | Zeigt Tag-Konfiguration (`tag_settings`) |
 | `conflict-reset` | Zurücksetzen von Batch-Rules und Präferenzen |
 
 ### Detaillierte Kommandos
@@ -148,12 +148,12 @@ python main.py info <datei>
 python main.py info "music/song.mp3"
 ```
 
-#### `conflict-info` - Conflict Management Status
+#### `conflict-info` - Tag-Konfiguration Status
 ```bash
 python main.py conflict-info
 ```
 
-Zeigt die aktuelle Conflict Management Konfiguration:
+Zeigt die aktuelle Tag-Konfiguration (`tag_settings`):
 - Auto-Update Tags (werden automatisch überschrieben)
 - Geschützte Tags (werden niemals geändert)  
 - Interaktive Tags (erfordern Bestätigung)
@@ -264,40 +264,40 @@ MP3 Tagger bietet mehrere intelligente Backup-Strategien für verschiedene Anwen
 ### Backup-Management
 ```bash
 # Backup-Status anzeigen (zeigt aktuelle Strategie und Statistiken)
-mp3tagger backup status
+python main.py backup status
 
 # Backup-Strategien
-mp3tagger backup strategy changelog  # Standard - empfohlen für große Bibliotheken
-mp3tagger backup strategy in_memory  # RAM-basiert für kleine Bibliotheken  
-mp3tagger backup strategy selective  # Nur kritische Tags (kompakt)
-mp3tagger backup strategy disabled   # Keine Backups (nicht empfohlen)
+python main.py backup strategy changelog  # Standard - empfohlen für große Bibliotheken
+python main.py backup strategy in_memory  # RAM-basiert für kleine Bibliotheken  
+python main.py backup strategy selective  # Nur kritische Tags (kompakt)
+python main.py backup strategy disabled   # Keine Backups (nicht empfohlen)
 
 # Backup-Wartung
-mp3tagger backup cleanup --dry-run   # Vorschau: Welche Backups würden gelöscht?
-mp3tagger backup cleanup --force     # Alte Backups aufräumen
+python main.py backup cleanup --dry-run   # Vorschau: Welche Backups würden gelöscht?
+python main.py backup cleanup --force     # Alte Backups aufräumen
 
 # Wiederherstellung
-mp3tagger backup restore path/to/song.mp3                    # Neuestes Backup
-mp3tagger backup restore path/to/song.mp3 --timestamp 20250621_143022  # Spezifisches Backup
+python main.py backup restore path/to/song.mp3                    # Neuestes Backup
+python main.py backup restore path/to/song.mp3 --timestamp 20250621_143022  # Spezifisches Backup
 ```
 
 ### 💡 **Empfohlene Konfiguration für verschiedene Anwendungsfälle:**
 
 **🏠 Heimnutzer (< 5.000 MP3s):**
 ```bash
-mp3tagger backup strategy changelog  # Standard - bereits optimal
+python main.py backup strategy changelog  # Standard - bereits optimal
 ```
 
 **🎵 DJ/Sammler (5.000-50.000 MP3s):**
 ```bash
-mp3tagger backup strategy changelog  # Empfohlen
+python main.py backup strategy changelog  # Empfohlen
 # Optional: RAM-Limit anpassen in config/user_config.yaml
 # backup.max_memory_mb: 1000
 ```
 
 **🏢 Professionell (50.000+ MP3s):**
 ```bash
-mp3tagger backup strategy changelog  # Obligatorisch
+python main.py backup strategy changelog  # Obligatorisch
 # backup.max_age_days: 7  # Kürzere Aufbewahrung
 ```
 
@@ -307,14 +307,14 @@ mp3tagger backup strategy changelog  # Obligatorisch
 - **Automatischer Rollback** bei Fehlern
 - **Dry-Run-Modus** zum sicheren Testen
 
-## 🛠️ Conflict Management
+## 🛠️ Tag-Management & Konfliktauflösung
 
-MP3 Tagger verfügt über ein intelligentes Konfliktmanagement, das große Bibliotheken effizient verarbeitet:
+MP3 Tagger verfügt über ein intelligentes Tag-Management, das große Bibliotheken effizient verarbeitet:
 
 ### 🔄 **Auto-Update Tags**
 Diese Tags werden automatisch überschrieben (z.B. YouTube-Views, Spotify-Popularity):
 ```bash
-mp3tagger conflict-info  # Zeigt alle konfigurierten Tags
+python main.py conflict-info  # Zeigt alle konfigurierten Tags
 ```
 
 ### 📦 **Batch-Verarbeitung**
@@ -329,10 +329,10 @@ mp3tagger conflict-info  # Zeigt alle konfigurierten Tags
 
 ```bash
 # Interaktiver Modus mit Batch-Optionen
-mp3tagger enrich music-folder --interactive
+python main.py enrich music-folder --interactive
 
 # Nur Auto-Update Tags verarbeiten (keine Nachfragen)
-mp3tagger enrich music-folder --update-tags
+python main.py enrich music-folder --update-tags
 ```
 
 ## 🎯 Praxisbeispiele
@@ -342,7 +342,7 @@ mp3tagger enrich music-folder --update-tags
 # 1. Erst scannen und Status prüfen
 python main.py scan ./music-collection
 
-# 2. Conflict Management konfigurieren
+# 2. Tag-Konfiguration prüfen
 python main.py conflict-info
 
 # 3. Automatische Anreicherung starten
@@ -377,16 +377,16 @@ python main.py config-info
 ### Backup-Management Beispiele
 ```bash
 # Status der Backups prüfen
-mp3tagger backup status
+python main.py backup status
 
 # Changelog-Strategie aktivieren
-mp3tagger backup strategy changelog
+python main.py backup strategy changelog
 
 # Alte Backups aufräumen (Vorschau)
-mp3tagger backup cleanup --dry-run
+python main.py backup cleanup --dry-run
 
 # Datei wiederherstellen aus Backup
-mp3tagger backup restore "path/to/song.mp3"
+python main.py backup restore "path/to/song.mp3"
 ```
 
 ## 📝 Beispiel-Output

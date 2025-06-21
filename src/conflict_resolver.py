@@ -126,15 +126,14 @@ class ConflictResolver:
                 for key, rule in self.batch_rules.items()
             }
             
-            with open("batch_rules.json", 'w', encoding='utf-8') as f:
-                json.dump(rules_data, f, indent=2, ensure_ascii=False)
+            with open("batch_rules.json", 'w', encoding='utf-8') as f:                json.dump(rules_data, f, indent=2, ensure_ascii=False)
             logger.info("Batch-Rules gespeichert")
         except Exception as e:
             logger.error(f"Fehler beim Speichern der Batch-Rules: {e}")
     
     def _is_auto_update_tag(self, tag_name: str) -> bool:
         """Prüft ob ein Tag automatisch aktualisiert werden soll."""
-        auto_update_tags = self.config.get('conflict_management.auto_update_tags', [])
+        auto_update_tags = self.config.get('tag_settings.auto_update_tags', [])
         
         # Exakte Übereinstimmung
         if tag_name in auto_update_tags:
@@ -152,12 +151,12 @@ class ConflictResolver:
     
     def _is_protected_tag(self, tag_name: str) -> bool:
         """Prüft ob ein Tag geschützt ist."""
-        protected_tags = self.config.get('conflict_management.protected_tags', [])
+        protected_tags = self.config.get('tag_settings.protected_tags', [])
         return tag_name in protected_tags
     
     def _requires_interaction(self, tag_name: str) -> bool:
         """Prüft ob ein Tag interaktive Behandlung erfordert."""
-        interactive_tags = self.config.get('conflict_management.interactive_tags', [])
+        interactive_tags = self.config.get('tag_settings.interactive_tags', [])
         return tag_name in interactive_tags
 
     def analyze_conflicts(
@@ -640,13 +639,13 @@ class ConflictResolver:
                 self.session.batch_rules_applied += 1
             else:
                 remaining_conflicts.append(conflict)
-        
-        # 4. Interaktive Auflösung nur für verbleibende Konflikte
+          # 4. Interaktive Auflösung nur für verbleibende Konflikte
         interactive_resolutions = {}
+        
         if interactive and remaining_conflicts:
             # Prüfe ob Batch-Mode angeboten werden soll
-            if (len(remaining_conflicts) >= self.config.get('conflict_management.batch_processing.auto_batch_threshold', 5) 
-                and self.config.get('conflict_management.batch_processing.enabled', True)):
+            if (len(remaining_conflicts) >= self.config.get('tag_settings.conflict_resolution.batch_processing.auto_batch_threshold', 5) 
+                and self.config.get('tag_settings.conflict_resolution.batch_processing.enabled', True)):
                 
                 interactive_resolutions = self._resolve_with_batch_options(remaining_conflicts, file_path)
             else:
@@ -727,7 +726,7 @@ class ConflictResolver:
     
     def _resolve_by_confidence(self, conflict: TagConflict) -> ConflictResolution:
         """Löst Konflikt basierend auf Confidence-Score."""
-        thresholds = self.config.get('conflict_management.confidence_thresholds', {})
+        thresholds = self.config.get('tag_settings.conflict_resolution.confidence_thresholds', {})
         
         if conflict.confidence >= thresholds.get('auto_accept', 0.95):
             action = ConflictAction.USE_NEW

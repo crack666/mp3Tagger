@@ -249,30 +249,29 @@ def conflict_info(ctx):
     click.echo("="*60)
     click.echo("CONFLICT MANAGEMENT KONFIGURATION")
     click.echo("="*60)
-    
-    # Auto-Update Tags
-    auto_update_tags = config.get('conflict_management.auto_update_tags', [])
+      # Auto-Update Tags
+    auto_update_tags = config.get('tag_settings.auto_update_tags', [])
     click.echo(f"\n🔄 Auto-Update Tags ({len(auto_update_tags)}):")
     click.echo("Diese Tags werden automatisch ohne Nachfrage überschrieben:")
     for tag in auto_update_tags:
         click.echo(f"  • {tag}")
     
     # Protected Tags
-    protected_tags = config.get('conflict_management.protected_tags', [])
+    protected_tags = config.get('tag_settings.protected_tags', [])
     click.echo(f"\n🛡️  Geschützte Tags ({len(protected_tags)}):")
     click.echo("Diese Tags werden NIEMALS überschrieben:")
     for tag in protected_tags:
         click.echo(f"  • {tag}")
     
     # Interactive Tags
-    interactive_tags = config.get('conflict_management.interactive_tags', [])
+    interactive_tags = config.get('tag_settings.interactive_tags', [])
     click.echo(f"\n👤 Interaktive Tags ({len(interactive_tags)}):")
     click.echo("Bei diesen Tags wird immer nachgefragt:")
     for tag in interactive_tags:
         click.echo(f"  • {tag}")
     
     # Batch Processing
-    batch_config = config.get('conflict_management.batch_processing', {})
+    batch_config = config.get('tag_settings.conflict_resolution.batch_processing', {})
     click.echo(f"\n📦 Batch-Verarbeitung:")
     click.echo(f"  Aktiviert: {'✅' if batch_config.get('enabled', True) else '❌'}")
     click.echo(f"  Auto-Batch Schwelle: {batch_config.get('auto_batch_threshold', 5)} Konflikte")
@@ -280,7 +279,7 @@ def conflict_info(ctx):
     click.echo(f"  Max. interaktive Nachfragen: {batch_config.get('max_interactive_prompts', 20)}")
     
     # Confidence Thresholds
-    confidence_config = config.get('conflict_management.confidence_thresholds', {})
+    confidence_config = config.get('tag_settings.conflict_resolution.confidence_thresholds', {})
     click.echo(f"\n📊 Confidence-Schwellwerte:")
     click.echo(f"  Auto-Accept: ≥ {confidence_config.get('auto_accept', 0.95)*100:.0f}%")
     click.echo(f"  Empfehlung Accept: ≥ {confidence_config.get('recommend_accept', 0.80)*100:.0f}%")
