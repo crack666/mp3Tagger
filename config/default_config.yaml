@@ -28,7 +28,9 @@ tag_settings:
     - user_defined_text_1
     - user_defined_text_2
     - custom_note
-    # Diese Tags können verarbeitet werden
+    - personal_rating
+    
+  # Diese Tags können verarbeitet werden
   processable_tags:
     - artist
     - albumartist
@@ -44,7 +46,9 @@ tag_settings:
     - youtube_url
     - youtube_views
     - youtube_likes
-    - youtube_channel    - spotify_id
+    - youtube_comments
+    - youtube_dislikes
+    - spotify_id
     - spotify_url
     - spotify_popularity
     - spotify_artist_followers
@@ -56,22 +60,30 @@ tag_settings:
     - popularity_score
     - musicbrainz_artist_id
     - musicbrainz_track_id
+  
   # Diese Tags werden automatisch aktualisiert (ohne Nachfrage)
   auto_update_tags:
     - youtube_views
     - youtube_likes
+    - youtube_comments
+    - youtube_dislikes
     - spotify_popularity
-    - spotify_artist_followers
-    - spotify_artist_monthly_listeners
     - lastfm_playcount
     - lastfm_listeners
     - popularity_score
-    # Benutzerdefinierte Tag-Mappings
+    - mp3_tagger_version
+    - last_updated
+    - metadata_source
+    - external_ids
+    
+  # Benutzerdefinierte Tag-Mappings
   custom_tags:
     # YouTube
     youtube_url: "WXXX:YOUTUBE_URL"
     youtube_views: "TXXX:YOUTUBE_VIEWS"
     youtube_likes: "TXXX:YOUTUBE_LIKES"
+    youtube_comments: "TXXX:YOUTUBE_COMMENTS"
+    youtube_dislikes: "TXXX:YOUTUBE_DISLIKES"
     youtube_channel: "TXXX:YOUTUBE_CHANNEL"
       # Spotify
     spotify_id: "TXXX:SPOTIFY_ID"
@@ -197,3 +209,56 @@ backup:
   
   # Komprimierung der Backups
   compress: true
+
+# Conflict Management Einstellungen
+conflict_management:
+  # Auto-Update: Diese Tags werden automatisch ohne Nachfrage überschrieben
+  auto_update_tags:
+    - youtube_views
+    - youtube_likes  
+    - youtube_comments
+    - youtube_dislikes
+    - spotify_popularity
+    - lastfm_playcount
+    - lastfm_listeners
+    - mp3_tagger_version
+    - last_updated
+    - metadata_source
+    - external_ids
+  
+  # Protected: Diese Tags werden NIE überschrieben
+  protected_tags:
+    - comment
+    - user_defined_text_1
+    - user_defined_text_2
+    - custom_note
+    - personal_rating
+  
+  # Interactive: Bei diesen Tags wird immer nachgefragt  
+  interactive_tags:
+    - artist
+    - title
+    - album
+    - albumartist
+    - date
+    - year
+    - genre
+  
+  # Batch-Mode Einstellungen
+  batch_processing:
+    enabled: true
+    # Nach X Konflikten automatisch Batch-Rules anbieten
+    auto_batch_threshold: 5
+    # Speichere Entscheidungen für ähnliche Konflikte
+    remember_decisions: true
+    # Maximale Anzahl interaktiver Nachfragen pro Session
+    max_interactive_prompts: 20
+  
+  # Confidence-basierte automatische Auflösung
+  confidence_thresholds:
+    # Bei Confidence >= 95% automatisch überschreiben
+    auto_accept: 0.95
+    # Bei Confidence >= 80% mit Empfehlung fragen
+    recommend_accept: 0.80
+    # Bei Confidence < 60% mit Warnung fragen
+    warn_low_confidence: 0.60

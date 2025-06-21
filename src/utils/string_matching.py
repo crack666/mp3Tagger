@@ -315,3 +315,42 @@ def extract_year_from_string(text: str) -> Optional[int]:
         return int(matches[0])
     
     return None
+
+
+def extract_artist_title_from_filename(filename: str) -> Optional[Tuple[str, str]]:
+    """
+    Extrahiert Künstler und Titel aus einem Dateinamen.
+    
+    Args:
+        filename: Dateiname (ohne Pfad)
+        
+    Returns:
+        Tuple von (artist, title) oder None wenn nicht erkannt
+    """
+    # Entferne Dateiendung
+    name = filename.replace('.mp3', '').replace('.MP3', '')
+    
+    # Häufige Trennzeichen für Künstler - Titel
+    separators = [' - ', ' – ', ' — ', '_-_', ' | ']
+    
+    for sep in separators:
+        if sep in name:
+            parts = name.split(sep, 1)  # Nur beim ersten Vorkommen teilen
+            if len(parts) == 2:
+                artist = parts[0].strip()
+                title = parts[1].strip()
+                
+                # Minimale Validierung
+                if len(artist) > 0 and len(title) > 0:
+                    return (artist, title)
+    
+    # Fallback: Versuche andere Muster
+    # Format: "Artist_Title" oder "Artist Title"
+    words = name.replace('_', ' ').split()
+    if len(words) >= 2:
+        # Nimm erstes Wort als Artist, Rest als Title
+        artist = words[0]
+        title = ' '.join(words[1:])
+        return (artist, title)
+    
+    return None

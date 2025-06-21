@@ -43,9 +43,9 @@ class VideoResult:
 class YouTubeHandler:
     """Verwaltet YouTube-Integrationen und Video-Suchen."""
     
-    def __init__(self):
+    def __init__(self, config=None):
         """Initialisiert den YouTube Handler."""
-        self.config = get_config()
+        self.config = config or get_config()
         self.youtube_api_key = self.config.get_api_key('youtube_api_key')
         self.youtube = None
         
@@ -454,9 +454,9 @@ class YouTubeHandler:
 class MultiPlatformVideoHandler:
     """Erweiterte Klasse für mehrere Video-Plattformen."""
     
-    def __init__(self):
+    def __init__(self, config=None):
         """Initialisiert Handler für mehrere Plattformen."""
-        self.youtube_handler = YouTubeHandler()
+        self.youtube_handler = YouTubeHandler(config)
         # Weitere Handler könnten hier hinzugefügt werden
     
     async def find_all_videos(

@@ -24,9 +24,9 @@ logger = logging.getLogger(__name__)
 class TagManager:
     """Verwaltet ID3-Tags in MP3-Dateien."""
     
-    def __init__(self):
+    def __init__(self, config=None):
         """Initialisiert den Tag Manager."""
-        self.config = get_config()
+        self.config = config or get_config()
         self.backup_enabled = self.config.get('backup.auto_backup', True)
         self.backup_dir = Path(self.config.get('backup.directory', 'backups'))
         

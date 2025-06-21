@@ -56,9 +56,9 @@ class MetadataResult:
 class MetadataResolver:
     """Löst Metadaten über verschiedene APIs auf."""
     
-    def __init__(self):
+    def __init__(self, config=None):
         """Initialisiert den MetadataResolver."""
-        self.config = get_config()
+        self.config = config or get_config()
         self._setup_apis()
         
     def _setup_apis(self):

@@ -9,6 +9,7 @@
 - [x] **Custom Tags**: YouTube-URLs, Views, Likes, Channel-Namen
 - [x] **Tag-Schutz**: Bestehende Tags bleiben erhalten
 - [x] **CLI-Interface**: Vollständige Kommandozeilen-Bedienung
+- [x] **Modulare CLI-Architektur**: Aufgeteilte Kommandos in separate Module
 - [x] **Konfigurationssystem**: YAML-basierte Einstellungen
 - [x] **Automatische Backups**: Sichere Tag-Updates
 - [x] **Fuzzy-Matching**: Intelligente Ähnlichkeitssuche
@@ -23,11 +24,12 @@
 ## 🚧 In Entwicklung (v1.1)
 
 ### Konfliktmanagement
-- [ ] **Interaktive Konfliktlösung**: Benutzer-Dialog bei Tag-Konflikten
-- [ ] **Batch-Entscheidungen**: "Für alle ähnlichen Fälle anwenden"
-- [ ] **Präferenz-Speicherung**: Benutzer-Entscheidungen für zukünftige Läufe
-- [ ] **Confidence-basierte Auto-Resolution**: Automatische Auflösung bei hoher Sicherheit
-- [ ] **Konflikt-Logging**: Detaillierte Protokolle aller Entscheidungen
+- [x] **Intelligente Konfliktauflösung**: Basierend auf Tag-Kategorien und Confidence
+- [x] **Batch-Processing**: Gruppierung und Batch-Rules für Effizienz  
+- [x] **Auto-Update Tags**: YouTube-Views, Spotify-Popularity automatisch aktualisieren
+- [x] **Geschützte Tags**: Benutzerdefinierte Tags niemals überschreiben
+- [x] **Session-Management**: Effizienz-Tracking und Optimierung
+- [x] **Persistente Regeln**: Batch-Rules für zukünftige Läufe speichern
 
 ### Erweiterte Features
 - [ ] **Progress-Bars**: Visuelle Fortschrittsanzeige bei großen Sammlungen

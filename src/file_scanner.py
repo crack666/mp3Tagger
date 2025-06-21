@@ -382,8 +382,7 @@ class FileScanner:
                 'parsed_files': 0,
                 'files_with_tags': 0,
                 'avg_bitrate': 0,
-                'avg_confidence': 0
-            }
+                'avg_confidence': 0            }
         
         total_size = sum(f.file_size for f in mp3_files)
         total_duration = sum(f.duration for f in mp3_files)
@@ -395,9 +394,11 @@ class FileScanner:
         return {
             'total_files': len(mp3_files),
             'total_size_mb': round(total_size / (1024 * 1024), 2),
+            'avg_size_mb': round(total_size / len(mp3_files) / (1024 * 1024), 2),
             'total_duration_minutes': round(total_duration / 60, 2),
             'parsed_files': parsed_files,
             'files_with_tags': files_with_tags,
+            'files_with_basic_tags': files_with_tags,  # Alias für Kompatibilität
             'avg_bitrate': round(avg_bitrate),
             'avg_confidence': round(avg_confidence, 2)
         }
