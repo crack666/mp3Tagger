@@ -248,8 +248,8 @@ MP3 Tagger bietet mehrere intelligente Backup-Strategien für verschiedene Anwen
 #### 🧠 **In-Memory Backup**
 - **Transaktional**: Datei wird im RAM gehalten während der Änderungen
 - **Schnell**: Sofortiger Rollback bei Fehlern
-- **Hybrid-Einsatz**: Automatisch für kleine Dateien, Changelog für große Sammlungen
-- **RAM-Limit**: Konfigurierbar (Standard: 500MB)
+- **Einzeln**: Pro Datei - kein RAM-Limit für große Bibliotheken
+- **Skalierbar**: Funktioniert für 10 oder 100.000 MP3s gleich gut
 
 #### 🎯 **Selective Backup**
 - **Kritische Tags**: Nur wichtige Tags werden gesichert
@@ -285,20 +285,23 @@ python main.py backup restore path/to/song.mp3 --timestamp 20250621_143022  # Sp
 
 **🏠 Heimnutzer (< 5.000 MP3s):**
 ```bash
-python main.py backup strategy changelog  # Standard - bereits optimal
+python main.py backup strategy in_memory  # Transaktional, eine Datei im RAM
+# oder
+python main.py backup strategy changelog  # Standard - ebenso optimal
 ```
 
 **🎵 DJ/Sammler (5.000-50.000 MP3s):**
 ```bash
-python main.py backup strategy changelog  # Empfohlen
-# Optional: RAM-Limit anpassen in config/user_config.yaml
-# backup.max_memory_mb: 1000
+python main.py backup strategy in_memory  # Empfohlen für Transaktionssicherheit
+# oder  
+python main.py backup strategy changelog  # Leichtgewichtig
 ```
 
 **🏢 Professionell (50.000+ MP3s):**
 ```bash
-python main.py backup strategy changelog  # Obligatorisch
-# backup.max_age_days: 7  # Kürzere Aufbewahrung
+python main.py backup strategy in_memory  # Funktioniert für jede Bibliotheksgröße
+# oder
+python main.py backup strategy changelog  # Minimaler Speicherbedarf
 ```
 
 ### Weitere Sicherheitsfeatures

@@ -224,13 +224,24 @@ performance:
   batch_size: 50
 
 # Backup-Einstellungen
+# WICHTIGER HINWEIS zur In-Memory-Backup-Strategie:
+# ===================================================
+# Die In-Memory-Strategie verarbeitet immer nur EINE Datei zur Zeit:
+# 1. Datei in RAM laden
+# 2. Tags ändern 
+# 3. Bei Erfolg: Datei schreiben, RAM freigeben
+# 4. Bei Fehler: Aus RAM wiederherstellen
+# 
+# Daher ist diese Strategie für JEDE Bibliotheksgröße geeignet,
+# da nie mehr als eine MP3-Datei gleichzeitig im Speicher gehalten wird.
+# Das "max_memory_mb" Limit ist somit obsolet für diese Strategie.
+
 backup:
   # Automatische Backups vor Tag-Änderungen
   auto_backup: true
-  
-  # Backup-Strategie (changelog, in_memory, selective, full_copy, disabled)
+    # Backup-Strategie (changelog, in_memory, selective, full_copy, disabled)
   # changelog: Leichtgewichtige JSON-basierte Änderungsprotokolle (empfohlen)
-  # in_memory: RAM-basierte Transaktions-Backups für kleine Bibliotheken
+  # in_memory: RAM-basierte Transaktions-Backups - Eine Datei pro Zeit im RAM
   # selective: Nur kritische Tags als kompakte JSON-Backups
   # full_copy: Vollständige Dateikopien (nur für kleine Bibliotheken)
   # disabled: Keine Backups
@@ -241,9 +252,6 @@ backup:
   
   # Maximales Alter der Backups (Tage)
   max_age_days: 30
-  
-  # Maximaler RAM-Verbrauch für In-Memory Backups (MB)
-  max_memory_mb: 500
   
   # Kritische Tags für Selective Backup-Strategie
   critical_tags:
